@@ -3,22 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import api from './api.js';
 import './Dashboard.css';
 
-interface Note {
-  id: number;
-  title: string;
-  content: string;
-  archived: boolean;
-  category: string;
-}
-
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const navigate = useNavigate();
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [notes, setNotes] = useState([]);
   const [filter, setFilter] = useState('active');
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', category: '' });
 
   useEffect(() => {
