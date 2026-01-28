@@ -50,6 +50,13 @@ export class NotesService {
     return this.notesRepo.find({ where: { category, userId } });
   }
 
+  findByCategoryAndUserWithArchived(category: string, userId: number, archived?: boolean) {
+    if (archived === undefined) {
+      return this.notesRepo.find({ where: { category, userId } });
+    }
+    return this.notesRepo.find({ where: { category, userId, archived } });
+  }
+
   // Legacy methods for backward compatibility
   findAll() {
     return this.notesRepo.find();

@@ -72,7 +72,7 @@ function Dashboard() {
   const handleToggleArchive = async (id, archived) => {
     try {
       await api.patch(`/notes/${id}`, { archived: !archived });
-      fetchNotes();
+      await fetchNotes();
     } catch (error) {
       console.error('Error toggling archive:', error);
     }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Request, Query } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { Note } from './note.entity';
 import { JwtGuard } from '../auth/jwt.guard';
@@ -9,7 +9,19 @@ export class NotesController {
   constructor(private readonly notesService: NotesService) {}
 
   @Get()
-  findAll(@Request() req) {
+  async findAll(@Request() req, @Query('archived') archived?: string, @Query('category') category?: string) {
+    const archivedFilter = archived === 'true' ? true : archived === 'false' ? false : undefined;
+    
+    if (category) {
+      return this.notesService.findByCategoryAndUserWithArchived(category, req.user.userId, archivedFilter);
+    }
+
+    if (archivedFilter !== undefined) {
+      return archivedFilter 
+        ? this.notesService.findArchivedByUser(req.user.userId)
+        : this.notesService.findActiveByUser(req.user.userId);
+    }
+
     return this.notesService.findByUser(req.user.userId);
   }
 
