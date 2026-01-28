@@ -7,7 +7,6 @@ import './App.css';
 
 function App() {
   useEffect(() => {
-    // Redirect to dashboard if already logged in and on login page
     const token = localStorage.getItem('token');
     if (token && window.location.pathname === '/') {
       window.location.href = '/dashboard';

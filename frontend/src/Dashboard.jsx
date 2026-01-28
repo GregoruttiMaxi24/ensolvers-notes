@@ -41,7 +41,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     try {
       if (editingId) {
@@ -58,13 +58,13 @@ const Dashboard = () => {
     }
   };
 
-  const handleEdit = (note: Note) => {
+  const handleEdit = (note) => {
     setFormData({ title: note.title, content: note.content, category: note.category });
     setEditingId(note.id);
     setShowForm(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Delete this note?')) {
       try {
         await api.delete(`/notes/${id}`);
@@ -75,7 +75,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleToggleArchive = async (id: number) => {
+  const handleToggleArchive = async (id) => {
     try {
       await api.patch(`/notes/${id}/toggle`);
       fetchNotes();
