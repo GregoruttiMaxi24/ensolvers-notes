@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from './api.js';
 import './Dashboard.css';
 
-const Dashboard = () => {
-  const navigate = useNavigate();
+function Dashboard() {
   const [notes, setNotes] = useState([]);
   const [filter, setFilter] = useState('active');
   const [category, setCategory] = useState('');
@@ -12,37 +11,32 @@ const Dashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', category: '' });
-
-  useEffect(() => {
-    fetchNotes();
-  }, [filter, category]);
+  const navigate = useNavigate();
 
   const fetchNotes = async () => {
     try {
-      setLoading(true);
-      let endpoint = '/notes';
+      const params = {};
+      if (filter === 'active') params.archived = false;
+      if (filter === 'archived') params.archived = true;
+      if (category) params.category = category;
 
-      if (filter === 'active') {
-        endpoint = '/notes/active';
-      } else if (filter === 'archived') {
-        endpoint = '/notes/archived';
-      }
-
-      if (category) {
-        endpoint = `/notes/category/${category}`;
-      }
-
-      const response = await api.get(endpoint);
+      const response = await api.get('/notes', { params });
       setNotes(response.data);
-    } catch (err) {
-      console.error('Error fetching notes:', err);
+    } catch (error) {
+      console.error('Error fetching notes:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    fetchNotes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, category]);
+
+  const handleCreate = async () => {
+    if (!formData.title.trim()) return;
+
     try {
       if (editingId) {
         await api.patch(`/notes/${editingId}`, formData);
@@ -53,34 +47,34 @@ const Dashboard = () => {
       setEditingId(null);
       setShowForm(false);
       fetchNotes();
-    } catch (err) {
-      console.error('Error saving note:', err);
+    } catch (error) {
+      console.error('Error saving note:', error);
     }
   };
 
-  const handleEdit = (note) => {
-    setFormData({ title: note.title, content: note.content, category: note.category });
-    setEditingId(note.id);
-    setShowForm(true);
-  };
-
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this note?')) {
+    if (window.confirm('¿Eliminar esta nota?')) {
       try {
         await api.delete(`/notes/${id}`);
         fetchNotes();
-      } catch (err) {
-        console.error('Error deleting note:', err);
+      } catch (error) {
+        console.error('Error deleting note:', error);
       }
     }
   };
 
-  const handleToggleArchive = async (id) => {
+  const handleEdit = (note) => {
+    setFormData({ title: note.title, content: note.content, category: note.category || '' });
+    setEditingId(note.id);
+    setShowForm(true);
+  };
+
+  const handleToggleArchive = async (id, archived) => {
     try {
-      await api.patch(`/notes/${id}/toggle`);
+      await api.patch(`/notes/${id}`, { archived: !archived });
       fetchNotes();
-    } catch (err) {
-      console.error('Error toggling archive:', err);
+    } catch (error) {
+      console.error('Error toggling archive:', error);
     }
   };
 
@@ -90,110 +84,92 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  if (loading) return <div className="dashboard-container"><p>Cargando...</p></div>;
+
   return (
-    <div className="dashboard">
+    <div className="dashboard-container">
       <header className="dashboard-header">
-        <h1>My Notes</h1>
-        <button onClick={handleLogout} className="logout-btn">
-          Logout
-        </button>
+        <h1>Mis Notas</h1>
+        <button onClick={handleLogout} className="logout-btn">Salir</button>
       </header>
 
       <div className="controls">
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary">
+          {showForm ? 'Cancelar' : 'Nueva Nota'}
+        </button>
+
         <div className="filters">
           <button
             className={filter === 'active' ? 'active' : ''}
-            onClick={() => { setFilter('active'); setCategory(''); }}
+            onClick={() => setFilter('active')}
           >
-            Active
+            Activas
           </button>
           <button
             className={filter === 'archived' ? 'active' : ''}
-            onClick={() => { setFilter('archived'); setCategory(''); }}
+            onClick={() => setFilter('archived')}
           >
-            Archived
+            Archivadas
           </button>
-          <button
-            className={filter === 'all' ? 'active' : ''}
-            onClick={() => { setFilter('all'); setCategory(''); }}
-          >
-            All
-          </button>
+          <input
+            type="text"
+            placeholder="Filtrar por categoría..."
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
         </div>
-
-        <input
-          type="text"
-          placeholder="Filter by category..."
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="category-filter"
-        />
-
-        <button onClick={() => { setShowForm(!showForm); setEditingId(null); setFormData({ title: '', content: '', category: '' }); }} className="new-btn">
-          + New Note
-        </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="note-form">
+        <div className="form-container">
           <input
             type="text"
-            placeholder="Title"
+            placeholder="Título..."
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            required
           />
           <textarea
-            placeholder="Content"
+            placeholder="Contenido..."
             value={formData.content}
             onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-            rows={4}
           />
           <input
             type="text"
-            placeholder="Category"
+            placeholder="Categoría..."
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
           />
-          <div className="form-buttons">
-            <button type="submit">{editingId ? 'Update' : 'Create'}</button>
-            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="cancel-btn">
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="notes-grid">
-          {notes.length === 0 ? (
-            <p className="no-notes">No notes found</p>
-          ) : (
-            notes.map((note) => (
-              <div key={note.id} className="note-card">
-                <h3>{note.title}</h3>
-                {note.category && <span className="category-badge">{note.category}</span>}
-                <p>{note.content}</p>
-                <div className="note-actions">
-                  <button onClick={() => handleEdit(note)} className="edit-btn">
-                    Edit
-                  </button>
-                  <button onClick={() => handleToggleArchive(note.id)} className="archive-btn">
-                    {note.archived ? 'Unarchive' : 'Archive'}
-                  </button>
-                  <button onClick={() => handleDelete(note.id)} className="delete-btn">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+          <button onClick={handleCreate} className="btn-primary">
+            {editingId ? 'Actualizar' : 'Crear'}
+          </button>
         </div>
       )}
+
+      <div className="notes-grid">
+        {notes.length === 0 ? (
+          <p>No hay notas</p>
+        ) : (
+          notes.map((note) => (
+            <div key={note.id} className="note-card">
+              <h3>{note.title}</h3>
+              {note.category && <span className="category-badge">{note.category}</span>}
+              <p>{note.content}</p>
+              <div className="note-actions">
+                <button onClick={() => handleEdit(note)} className="btn-edit">Editar</button>
+                <button onClick={() => handleDelete(note.id)} className="btn-delete">Eliminar</button>
+                <button
+                  onClick={() => handleToggleArchive(note.id, note.archived)}
+                  className="btn-archive"
+                >
+                  {note.archived ? 'Desarchivar' : 'Archivar'}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default Dashboard;
