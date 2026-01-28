@@ -4,7 +4,7 @@ import api from './api.js';
 import './Login.css';
 
 function Login() {
-  const [email, setEmail] = useState('admin');
+  const [email, setEmail] = useState('admin@admin.com');
   const [password, setPassword] = useState('admin');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -56,7 +56,7 @@ function Login() {
         <button type="submit" disabled={loading}>
           {loading ? 'Ingresando...' : 'Ingresar'}
         </button>
-        <p className="default-creds">Default: admin / admin</p>
+        <p className="default-creds">Default: admin@admin.com / admin</p>
       </form>
     </div>
   );
