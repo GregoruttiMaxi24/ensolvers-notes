@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './Login';
-import Dashboard from './Dashboard';
-import ProtectedRoute from './ProtectedRoute';
+import Login from './Login.jsx';
+import Dashboard from './Dashboard.jsx';
+import ProtectedRoute from './ProtectedRoute.jsx';
 import './App.css';
 
 function App() {
