@@ -1,43 +1,122 @@
 @echo off
-cls
+REM =========================================================
+REM Ensolvers Notes - Complete Setup Script (Windows)
+REM =========================================================
+
+setlocal enabledelayedexpansion
+cd /d "%~dp0"
+
 echo.
-echo ========================================
-echo    Ensolvers Notes - Full Setup
-echo ========================================
+echo =========================================================
+echo            ENSOLVERS NOTES - SETUP SCRIPT
+echo =========================================================
 echo.
 
-REM Setup Backend
-echo Setting up Backend...
-cd backend
+REM Verify directories exist
+if not exist "backend" (
+    echo [ERROR] Backend directory not found
+    pause
+    exit /b 1
+)
+
+if not exist "frontend" (
+    echo [ERROR] Frontend directory not found
+    pause
+    exit /b 1
+)
+
+echo [INFO] Starting setup process...
+echo.
+
+REM ===== BACKEND SETUP =====
+echo =========================================================
+echo STEP 1: Backend Setup
+echo =========================================================
+echo.
+
+cd /d "%~dp0backend"
+if not exist "package.json" (
+    echo [ERROR] Backend package.json not found
+    pause
+    exit /b 1
+)
+
+echo [INFO] Installing backend dependencies...
+echo This may take a few minutes...
+echo.
+
 call npm install
-call npm run build
-echo Backend built successfully
+
+if %errorlevel% neq 0 (
+    echo [ERROR] Backend npm install failed
+    pause
+    exit /b 1
+)
+
+echo [OK] Backend dependencies installed
+
+REM ===== FRONTEND SETUP =====
+echo.
+echo =========================================================
+echo STEP 2: Frontend Setup
+echo =========================================================
 echo.
 
-REM Setup Frontend
-echo Setting up Frontend...
-cd ../frontend
+cd /d "%~dp0frontend"
+if not exist "package.json" (
+    echo [ERROR] Frontend package.json not found
+    pause
+    exit /b 1
+)
+
+echo [INFO] Installing frontend dependencies...
+echo This may take a few minutes...
+echo.
+
 call npm install
-echo Frontend dependencies installed
+
+if %errorlevel% neq 0 (
+    echo [ERROR] Frontend npm install failed
+    pause
+    exit /b 1
+)
+
+echo [OK] Frontend dependencies installed
+
+REM ===== COMPLETION =====
+cd /d "%~dp0"
+
+echo.
+echo =========================================================
+echo SETUP COMPLETED SUCCESSFULLY!
+echo =========================================================
 echo.
 
-REM Go back to root
-cd ..
-
-echo.
-echo ========================================
-echo Setup completed successfully!
-echo ========================================
-echo.
 echo To start the application:
-echo 1. Open Terminal 1 (Backend):
-echo    cd backend && npm start:dev
 echo.
-echo 2. Open Terminal 2 (Frontend):
-echo    cd frontend && npm start
+echo Step 1 - Start Backend (Terminal 1):
+echo   cd backend
+echo   npm start:dev
 echo.
-echo Default credentials: admin / admin
-echo Frontend will open at: http://localhost:3000
-echo Backend API at: http://localhost:3000/api
+echo Step 2 - Start Frontend (Terminal 2):
+echo   cd frontend
+echo   npm start
 echo.
+echo =========================================================
+echo   Default Credentials
+echo =========================================================
+echo.
+echo   Email:    admin
+echo   Password: admin
+echo.
+echo =========================================================
+echo   Access URLs
+echo =========================================================
+echo.
+echo   Frontend: http://localhost:3000
+echo   Backend:  http://localhost:3000/api
+echo.
+echo =========================================================
+echo.
+
 pause
