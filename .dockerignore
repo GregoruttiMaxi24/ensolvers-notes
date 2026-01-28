@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log
+dist
+build
+.git
+.gitignore
+*.md
+.env
+.env.local
+.DS_Store
+.vscode
+.idea
+*.swp
+frontend/node_modules
+frontend/build
+backend/node_modules
+backend/dist
